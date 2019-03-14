@@ -1,31 +1,42 @@
-``` Python
+``` python
 # -*- coding: utf-8 -*-
-import xlrd, re, csv
-from selenium import webdriver
-from bs4 import BeautifulSoup
-import PyMySQL
+
+import requests
+import pymysql
 import json
+import time
+import numpy as np
 
 class fileLoader():
     def __init__(self):
-        self.souFileName = "/Users/zhangge/Desktop/prc_sn_02.181.xlsx"
-
-
-
-    def ReaderSource(self):  #read sn
-        workbook = xlrd.open_workbook(self.souFileName)
-        booksheet = workbook.sheet_by_name('prc_sn_02.18')
-        arr = []
-        for row in range(booksheet.nrows):
-            for col in range(booksheet.ncols):
-                cel = booksheet.cell(row, col)
-                val = cel.value
-                arr.append(val)
-
+        self.dbconn = pymysql.connect(
+          host="localhost",
+          database="database",
+          user="user",
+          password="password",
+          port=3306,
+          charset='utf8'
+         )
+        self.cursor = self.dbconn.cursor()
+    
+    
+    
+    def ReaderSource(self):   
+        
+        
+        #sql语句
+        sqlcmd="select data from tablename"
+        
+        
+        self.cursor.execute(sqlcmd)
+        arr=self.cursor.fetchall() 
+        
         return arr
-
-    def spirder(self, source): 
-        page_url = 'https://newsupport.lenovo.com.cn/api/drive/'+source+'/drivesetinginfo'
+        self.dbconn.close()
+    def spirder(self, source):
+        headers={'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
+        page_url = 'https://newsupport.lenovo.com.cn/api/drive/'+str(source)+'/drivesetinginfo'
+        time.sleep(np.random.rand()*2)
         html = requests.get(page_url, headers=headers, timeout=20).text
         data = json.loads(html)
         data1 = data['data']
@@ -39,8 +50,7 @@ class fileLoader():
     def writemysql(self, info):
 
         try:
-            conn = PyMySQL.connect(host='localhost', user='root', passwd='root', db='sn_info', port=3306, charset="utf8")
-            cur = conn.cursor()
+            
             values = info
             print (values)
             print (len(values))
@@ -49,11 +59,11 @@ class fileLoader():
             if len(values) == 41:
                 values.append('null')
                 print (len(values))
-            cur.execute("insert into sn_info_sec values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", values)
-            conn.commit()
-            cur.close()
-            conn.close()
-        except PyMySQL.Error as e:
+            self.cursor.execute("insert into prc_bom_info values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", values)
+            self.dbconn.commit()
+            self.cursor.close()
+            self.dbconn.close()
+        except pymysql.Error as e:
             print ("Mysql Error %d: %s" % (e.args[0], e.args[1]))
 
     def run(self):
@@ -63,12 +73,13 @@ class fileLoader():
             print ("====================")
             info = fileLoader().spirder(sn)
             print(info)
-
-            if len(info) >= 41:
-                fileLoader().writemysql(info)
+            #print ','.join(info)
+        #    if len(info) >= 41:
+         #       fileLoader().writemysql(info)
 
 
 if __name__ == "__main__":
     #fileLoader().spirder("M702QU6Z")
     fileLoader().run()
+    
 ```
