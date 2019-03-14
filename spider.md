@@ -1,11 +1,5 @@
 ``` Python
 # -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-"""
-
-# -*- coding: utf-8 -*-
 import xlrd, re, csv
 from selenium import webdriver
 from bs4 import BeautifulSoup
