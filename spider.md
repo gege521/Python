@@ -1,4 +1,4 @@
-```python3.6
+``` Python
 # -*- coding: utf-8 -*-
 """
 Spyder Editor
