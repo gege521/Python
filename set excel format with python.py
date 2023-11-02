@@ -1,11 +1,12 @@
 import xlsxwriter
+#generate a new excel, later save your dataframe into
 writer = pd.ExcelWriter(f"exp_monitor_export_keyindex_{qry.date2}.xlsx", engine='xlsxwriter')
 exp_monitor_export_keyindex.to_excel(writer, sheet_name='Monitor')
 workbook = writer.book
 worksheet = writer.sheets['Monitor']
 worksheet.set_zoom(80)
 
-
+#set cells format
 percent_fmt1 =  workbook.add_format({'num_format': '0.0%','font_name':'微软雅黑' , 'font_size': 10 ,'bg_color':'#FDFEFE','border':0})
 percent_fmt2 =  workbook.add_format({'num_format': '0.00%','font_name':'微软雅黑' , 'font_size': 10 ,'bg_color':'#FDFEFE','border':0})
 int_fmt =  workbook.add_format({'num_format': '#,##0','font_name':'微软雅黑' , 'font_size': 10 ,'bg_color':'#FDFEFE','border':0})
